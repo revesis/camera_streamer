@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realme 手机摄像头极速实时流</title>
+    <title>Realme Camera Ultra-Low Latency Live Stream</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -262,13 +262,13 @@
 <body>
     <header>
         <div class="title-box">
-            <h1>Realme 实时摄像头</h1>
-            <span class="device-badge">极速低延迟模式</span>
+            <h1>Realme Live Camera</h1>
+            <span class="device-badge">Ultra-Low Latency Mode</span>
         </div>
         <div class="status-box">
             <div class="status-badge">
                 <div class="pulse-dot" id="live-dot"></div>
-                <span id="conn-state">WebSocket 极速直连</span>
+                <span id="conn-state">WebSocket Direct</span>
             </div>
         </div>
     </header>
@@ -276,8 +276,8 @@
     <main>
         <div class="player-wrapper" id="player-box">
             <div class="latency-indicator">
-                <span>传输延迟: <span class="latency-val">&lt; 50ms</span></span>
-                <span>实时帧率: <span class="latency-val" id="fps-counter">25.0 FPS</span></span>
+                <span>Latency: <span class="latency-val">&lt; 50ms</span></span>
+                <span>Frame Rate: <span class="latency-val" id="fps-counter">30.0 FPS</span></span>
             </div>
 
             <div class="video-container" id="video-container">
@@ -290,34 +290,34 @@
         <div class="controls-card">
             <div class="btn-group">
                 <button class="primary" id="btn-switch">
-                    🔄 切换前后摄
+                    🔄 Switch Camera
                 </button>
                 <button id="btn-snapshot">
-                    📸 拍照截图保存
+                    📸 Capture Snapshot
                 </button>
                 <button id="btn-wake">
-                    ⚡ 唤醒/重开相机
+                    ⚡ Wake / Re-open Camera
                 </button>
                 <button id="btn-rotate">
-                    📐 旋转画面
+                    📐 Rotate
                 </button>
                 <button id="btn-fullscreen">
-                    ⛶ 全屏
+                    ⛶ Fullscreen
                 </button>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-sub);">
-                💡 鼠标点击画面任意位置可直接对焦
+                💡 Click anywhere on the video feed to focus
             </div>
         </div>
 
         <div class="info-bar">
-            <span>传输协议: WebSocket Canvas (零缓冲即时渲染)</span>
-            <span>编码规格: H.264 硬件裁切 -> 30fps MJPEG 零延迟直推</span>
-            <span>后台看门狗: 活跃保护中</span>
+            <span>Protocol: WebSocket Canvas (Zero-buffer Real-time Render)</span>
+            <span>Pipeline: Hardware Crop H.264 &rarr; 30fps MJPEG Kernel Feed</span>
+            <span>Watchdog: Active Guard</span>
         </div>
     </main>
 
-    <div class="toast" id="toast">操作已触发</div>
+    <div class="toast" id="toast">Action triggered</div>
 
     <script>
         const canvas = document.getElementById('stream-canvas');
@@ -333,6 +333,8 @@
         let ws = null;
         let frameCount = 0;
         let lastFpsUpdate = performance.now();
+        let isDecoding = false;
+        let pendingBlob = null;
 
         function showToast(msg) {
             toastEl.textContent = msg;
@@ -341,9 +343,6 @@
         }
 
         // Establish zero-latency WebSocket connection
-        let isDecoding = false;
-        let pendingBlob = null;
-
         function connectWebSocket() {
             const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${proto}//${location.host}/ws`;
@@ -351,7 +350,7 @@
             ws.binaryType = 'blob';
 
             ws.onopen = () => {
-                connStateEl.textContent = "极速直连中";
+                connStateEl.textContent = "Live Connected";
                 connStateEl.style.color = "#10b981";
                 liveDot.style.background = "#10b981";
             };
@@ -364,7 +363,7 @@
             };
 
             ws.onclose = () => {
-                connStateEl.textContent = "重新连接中...";
+                connStateEl.textContent = "Reconnecting...";
                 connStateEl.style.color = "#f59e0b";
                 liveDot.style.background = "#f59e0b";
                 setTimeout(connectWebSocket, 1500);
@@ -428,16 +427,16 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({rel_x: parseFloat(relX), rel_y: parseFloat(relY)})
-            }).then(() => showToast(`已在 (${Math.round(relX*100)}%, ${Math.round(relY*100)}%) 处聚焦`))
+            }).then(() => showToast(`Focused at (${Math.round(relX*100)}%, ${Math.round(relY*100)}%)`))
               .catch(e => console.error(e));
         });
 
         // Switch camera
         document.getElementById('btn-switch').addEventListener('click', () => {
-            showToast('正在切换镜头...');
+            showToast('Switching camera...');
             fetch('/api/switch_camera', {method: 'POST'})
-                .then(() => showToast('已切换摄像头'))
-                .catch(() => showToast('切换失败'));
+                .then(() => showToast('Camera switched'))
+                .catch(() => showToast('Switch failed'));
         });
 
         // Instant snapshot (no interruption to camera preview)
@@ -450,22 +449,22 @@
                 a.download = `realme_snapshot_${Date.now()}.jpg`;
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast('已保存当前帧高清截图');
+                showToast('Snapshot saved');
             }, 'image/jpeg', 0.95);
         });
 
         // Wake / relaunch camera
         document.getElementById('btn-wake').addEventListener('click', () => {
-            showToast('正在激活相机界面...');
+            showToast('Activating camera interface...');
             fetch('/api/wake', {method: 'POST'})
-                .then(() => showToast('相机已激活'));
+                .then(() => showToast('Camera activated'));
         });
 
         // Rotate video
         document.getElementById('btn-rotate').addEventListener('click', () => {
             rotation = (rotation + 90) % 360;
             container.style.transform = `rotate(${rotation}deg)`;
-            showToast(`画面旋转至 ${rotation}°`);
+            showToast(`Rotated to ${rotation}°`);
         });
 
         // Fullscreen
