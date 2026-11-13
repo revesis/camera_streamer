@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.log
+*.mkv
+*.mp4
+*.jpg
+*.jpeg
+*.png
+.DS_Store
+.venv/
+venv/
