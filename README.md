@@ -50,9 +50,12 @@ sudo apt-get install adb scrcpy ffmpeg v4l2loopback-dkms python3-aiohttp python3
 ## 🚀 Quick Start
 
 1. **Connect Your Android Device**:
-   Enable Developer Options and USB Debugging on your phone, then connect via USB or TCP/IP:
+   Enable Developer Options and USB / Wireless Debugging on your phone:
    ```bash
-   adb connect 172.17.131.136:38163
+   # Connect via wireless debugging (port dynamically assigned by Android):
+   adb connect <PHONE_IP>:<PORT>
+
+   # Or connect via USB cable directly.
    ```
 
 2. **Load V4L2 Loopback Kernel Module**:
@@ -62,18 +65,23 @@ sudo apt-get install adb scrcpy ffmpeg v4l2loopback-dkms python3-aiohttp python3
 
 3. **Start the Streaming Service**:
    ```bash
-   chmod +x run_camera_stream.sh
+   # 1) Auto-detect single device or launch interactive terminal selection menu:
    ./run_camera_stream.sh
-   ```
-   Or customize options using environment variables:
-   ```bash
-   ADB_SERIAL="172.17.131.136:38163" PORT=8080 ./run_camera_stream.sh
+
+   # 2) Specify target IP:Port directly as an argument:
+   ./run_camera_stream.sh 172.17.131.136:37913
+
+   # 3) Or pass flags:
+   ./run_camera_stream.sh -s 172.17.131.136:37913 -p 8080
+
+   # 4) Or configure via environment variables:
+   ADB_SERIAL="172.17.131.136:37913" PORT=8080 ./run_camera_stream.sh
    ```
 
-4. **Open in Browser**:
-   Navigate to:
-   - Local machine: `http://localhost:8080`
-   - Other network devices: `http://<SERVER_IP>:8080`
+4. **Open in Browser & Switch Devices on the Fly**:
+   Navigate to `http://localhost:8080`.
+   - Click the **Device Pill (⚙️)** in the top bar anytime to open the **ADB Device Selector**.
+   - View all detected devices, switch between them with one click, or enter a new `IP:Port` dynamically without restarting the server!
 
 ---
 
@@ -82,12 +90,13 @@ sudo apt-get install adb scrcpy ffmpeg v4l2loopback-dkms python3-aiohttp python3
 ```
 camera_streamer/
 ├── camera_streamer/
+│   ├── adb_utils.py          # Dynamic ADB device discovery, connection & resolution
 │   ├── camera_controller.py  # ADB device controller & background watchdog service
 │   ├── stream_service.py     # V4L2 kernel device manager & FFmpeg/scrcpy pipeline
 │   ├── server.py             # aiohttp async web server & WebSocket real-time router
 │   └── web/
-│       └── index.html        # Responsive web player (GPU Canvas + drop-frame decoder)
-├── run_camera_stream.sh      # Startup script
+│       └── index.html        # Responsive web player (GPU Canvas + ADB device selector)
+├── run_camera_stream.sh      # Startup script with auto-detection & CLI forwarding
 ├── .gitignore
 └── README.md
 ```

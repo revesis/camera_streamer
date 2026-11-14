@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger("stream_service")
 
 class CameraStreamManager:
-    def __init__(self, serial="172.17.131.136:38163", v4l2_device="/dev/video0", max_fps=30, max_size=720):
+    def __init__(self, serial=None, v4l2_device="/dev/video0", max_fps=30, max_size=720):
         self.serial = serial
         self.v4l2_device = v4l2_device
         self.max_fps = max_fps
@@ -22,6 +22,15 @@ class CameraStreamManager:
         self.frame_condition = threading.Condition()
         self.frame_id = 0
         self.fps = 0.0
+
+    def update_serial(self, new_serial):
+        """Update ADB target serial and restart pipeline if active"""
+        logger.info("CameraStreamManager switching serial: %s -> %s", self.serial, new_serial)
+        self.serial = new_serial
+        with self.frame_condition:
+            self.latest_frame = None
+            self.fps = 0.0
+        self._terminate_subprocesses()
 
     def start(self):
         if self.running:
@@ -58,6 +67,9 @@ class CameraStreamManager:
             pass
 
         while self.running:
+            if not self.serial:
+                time.sleep(0.8)
+                continue
             try:
                 env = os.environ.copy()
                 env["SDL_VIDEODRIVER"] = "dummy"

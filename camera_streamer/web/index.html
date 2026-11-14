@@ -13,6 +13,7 @@
             --primary-hover: #2563eb;
             --accent: #10b981;
             --danger: #ef4444;
+            --danger-hover: #dc2626;
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
         }
@@ -51,7 +52,8 @@
         .title-box {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .title-box h1 {
@@ -59,13 +61,41 @@
             font-weight: 600;
         }
 
-        .device-badge {
-            font-size: 0.75rem;
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            padding: 2px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(96, 165, 250, 0.25);
+        .device-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            background: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .device-pill-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .device-dot {
+            width: 7px;
+            height: 7px;
+            background: #94a3b8;
+            border-radius: 50%;
+        }
+
+        .device-dot.online {
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+        }
+
+        .device-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 6px #ef4444;
         }
 
         .status-box {
@@ -121,60 +151,93 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 520px;
+            aspect-ratio: 3 / 4;
+            max-height: 72vh;
         }
 
         .video-container {
             position: relative;
-            display: inline-block;
-            cursor: crosshair;
-            transition: transform 0.2s ease;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        canvas#stream-canvas, img#mjpeg-stream {
-            display: block;
+        canvas {
             max-width: 100%;
-            max-height: 72vh;
-            border-radius: 6px;
-            user-select: none;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: crosshair;
         }
 
-        .focus-ring {
+        .standby-overlay {
             position: absolute;
-            width: 44px;
-            height: 44px;
-            border: 2px solid #38bdf8;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%) scale(1.6);
-            opacity: 0;
-            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.2s ease;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 15, 25, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(4px);
+            z-index: 50;
         }
 
-        .focus-ring.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+        .standby-overlay h3 {
+            font-size: 1.3rem;
+            color: #f8fafc;
+        }
+
+        .standby-overlay p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            max-width: 400px;
+            text-align: center;
         }
 
         .latency-indicator {
             position: absolute;
-            top: 14px;
-            left: 14px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(6px);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            color: #94a3b8;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            z-index: 10;
         }
 
         .latency-val {
             color: #38bdf8;
+            font-family: monospace;
             font-weight: 600;
+        }
+
+        .focus-ring {
+            position: absolute;
+            width: 54px;
+            height: 54px;
+            border: 2px solid #eab308;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20;
+        }
+
+        .focus-ring.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.0);
         }
 
         .controls-card {
@@ -182,19 +245,17 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            padding: 14px 18px;
+            padding: 14px 20px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
             backdrop-filter: blur(12px);
         }
 
         .btn-group {
             display: flex;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 10px;
         }
 
         button {
@@ -224,6 +285,17 @@
 
         button.primary:hover {
             background: var(--primary-hover);
+        }
+
+        button.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        button.danger:hover {
+            background: var(--danger);
+            color: #fff;
         }
 
         .info-bar {
@@ -257,13 +329,172 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-card {
+            background: #131b2e;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        .modal-close-btn:hover {
+            color: #fff;
+            transform: none;
+        }
+
+        .modal-body {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-desc {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        .section-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #93c5fd;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: -6px;
+        }
+
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .device-item.active {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .device-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .device-serial-text {
+            font-family: monospace;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .device-sub-text {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .manual-connect-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .manual-connect-box input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+            font-family: monospace;
+        }
+
+        .manual-connect-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="title-box">
             <h1>Realme Live Camera</h1>
-            <span class="device-badge">Ultra-Low Latency Mode</span>
+            <button class="device-pill-btn" id="device-btn" title="Click to view or switch ADB device">
+                <span class="device-dot" id="device-dot"></span>
+                <span id="device-name">Detecting...</span>
+                <span>⚙️</span>
+            </button>
         </div>
         <div class="status-box">
             <div class="status-badge">
@@ -277,13 +508,19 @@
         <div class="player-wrapper" id="player-box">
             <div class="latency-indicator">
                 <span>Latency: <span class="latency-val">&lt; 50ms</span></span>
-                <span>Frame Rate: <span class="latency-val" id="fps-counter">30.0 FPS</span></span>
+                <span>FPS: <span class="latency-val" id="fps-counter">0.0</span></span>
             </div>
 
             <div class="video-container" id="video-container">
                 <canvas id="stream-canvas" width="540" height="720"></canvas>
-                <img id="mjpeg-stream" style="display:none;" />
                 <div class="focus-ring" id="focus-ring"></div>
+            </div>
+
+            <!-- Standby Overlay when no device is connected -->
+            <div class="standby-overlay" id="standby-overlay" style="display: none;">
+                <h3>⚠️ No ADB Device Connected</h3>
+                <p>Click below to select an online device or connect to a wireless debugging IP & Port.</p>
+                <button class="primary" id="btn-standby-connect">📱 Select / Connect Device</button>
             </div>
         </div>
 
@@ -313,9 +550,42 @@
         <div class="info-bar">
             <span>Protocol: WebSocket Canvas (Zero-buffer Real-time Render)</span>
             <span>Pipeline: Hardware Crop H.264 &rarr; 30fps MJPEG Kernel Feed</span>
-            <span>Watchdog: Active Guard</span>
+            <span id="watchdog-tag">Device Target: Dynamic</span>
         </div>
     </main>
+
+    <!-- Device Management Modal -->
+    <div class="modal-backdrop" id="device-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>ADB Device Selector</h2>
+                <button class="modal-close-btn" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">
+                    Wireless debugging IP & Port change periodically. Select an active device from the list below, or enter a new network address.
+                </p>
+
+                <div class="section-title">Detected ADB Devices</div>
+                <div class="device-list" id="detected-devices-list">
+                    <div style="font-size: 0.82rem; color: var(--text-sub);">Scanning devices...</div>
+                </div>
+
+                <div class="section-title">Connect Custom IP : Port</div>
+                <div class="manual-connect-box">
+                    <input type="text" id="manual-ip-input" placeholder="e.g. 172.17.131.136:37913" />
+                    <button class="primary" id="btn-manual-connect">Connect</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-refresh-devices">🔄 Scan</button>
+                    <button id="btn-auto-detect">⚡ Auto-Detect</button>
+                </div>
+                <button id="btn-disconnect-device" class="danger">Disconnect</button>
+            </div>
+        </div>
+    </div>
 
     <div class="toast" id="toast">Action triggered</div>
 
@@ -329,17 +599,54 @@
         const connStateEl = document.getElementById('conn-state');
         const liveDot = document.getElementById('live-dot');
 
+        const deviceBtn = document.getElementById('device-btn');
+        const deviceName = document.getElementById('device-name');
+        const deviceDot = document.getElementById('device-dot');
+        const deviceModal = document.getElementById('device-modal');
+        const modalClose = document.getElementById('modal-close');
+        const detectedDevicesList = document.getElementById('detected-devices-list');
+        const manualIpInput = document.getElementById('manual-ip-input');
+        const btnManualConnect = document.getElementById('btn-manual-connect');
+        const btnRefreshDevices = document.getElementById('btn-refresh-devices');
+        const btnAutoDetect = document.getElementById('btn-auto-detect');
+        const btnDisconnectDevice = document.getElementById('btn-disconnect-device');
+        const standbyOverlay = document.getElementById('standby-overlay');
+        const btnStandbyConnect = document.getElementById('btn-standby-connect');
+
         let rotation = 0;
         let ws = null;
         let frameCount = 0;
         let lastFpsUpdate = performance.now();
         let isDecoding = false;
         let pendingBlob = null;
+        let currentConnectedSerial = null;
 
         function showToast(msg) {
             toastEl.textContent = msg;
             toastEl.classList.add('show');
-            setTimeout(() => toastEl.classList.remove('show'), 1800);
+            setTimeout(() => toastEl.classList.remove('show'), 2200);
+        }
+
+        // Fetch server status & update UI
+        async function fetchStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                currentConnectedSerial = data.serial;
+
+                if (data.connected && data.serial) {
+                    deviceName.textContent = data.serial;
+                    deviceDot.className = "device-dot online";
+                    standbyOverlay.style.display = "none";
+                } else {
+                    deviceName.textContent = "No Device Bound";
+                    deviceDot.className = "device-dot offline";
+                    standbyOverlay.style.display = "flex";
+                }
+            } catch (e) {
+                deviceName.textContent = "Server Offline";
+                deviceDot.className = "device-dot offline";
+            }
         }
 
         // Establish zero-latency WebSocket connection
@@ -397,7 +704,7 @@
                     lastFpsUpdate = now;
                 }
             } catch (e) {
-                console.error("Frame decode error:", e);
+                // Ignore transient frame decode drops
             } finally {
                 isDecoding = false;
                 if (pendingBlob) {
@@ -406,6 +713,143 @@
             }
         }
 
+        // Device Modal Operations
+        function openDeviceModal() {
+            deviceModal.style.display = "flex";
+            refreshDeviceList();
+        }
+
+        function closeDeviceModal() {
+            deviceModal.style.display = "none";
+        }
+
+        deviceBtn.addEventListener('click', openDeviceModal);
+        btnStandbyConnect.addEventListener('click', openDeviceModal);
+        modalClose.addEventListener('click', closeDeviceModal);
+        deviceModal.addEventListener('click', (e) => {
+            if (e.target === deviceModal) closeDeviceModal();
+        });
+
+        async function refreshDeviceList() {
+            detectedDevicesList.innerHTML = `<div style="font-size: 0.82rem; color: var(--text-sub);">Scanning ADB devices...</div>`;
+            try {
+                const res = await fetch('/api/devices');
+                const data = await res.json();
+                const devices = data.devices || [];
+                currentConnectedSerial = data.current_serial;
+
+                if (devices.length === 0) {
+                    detectedDevicesList.innerHTML = `
+                        <div style="font-size: 0.82rem; color: #94a3b8; padding: 6px 0;">
+                            No devices currently discovered via ADB.<br>
+                            Enter your phone's wireless debugging <strong>IP:Port</strong> below to connect.
+                        </div>`;
+                    return;
+                }
+
+                detectedDevicesList.innerHTML = "";
+                devices.forEach(d => {
+                    const isCurrent = d.serial === currentConnectedSerial;
+                    const item = document.createElement('div');
+                    item.className = `device-item ${isCurrent ? 'active' : ''}`;
+
+                    const info = document.createElement('div');
+                    info.className = 'device-info';
+                    info.innerHTML = `
+                        <span class="device-serial-text">${d.serial}</span>
+                        <span class="device-sub-text">${d.model || 'Device'} • ${d.state}</span>
+                    `;
+
+                    const btn = document.createElement('button');
+                    btn.className = isCurrent ? '' : 'primary';
+                    btn.textContent = isCurrent ? '✓ Current' : 'Select';
+                    btn.disabled = isCurrent;
+
+                    btn.addEventListener('click', async () => {
+                        await switchDevice(d.serial);
+                    });
+
+                    item.appendChild(info);
+                    item.appendChild(btn);
+                    detectedDevicesList.appendChild(item);
+                });
+            } catch (e) {
+                detectedDevicesList.innerHTML = `<div style="color: #ef4444; font-size: 0.82rem;">Failed to fetch devices: ${e.message}</div>`;
+            }
+        }
+
+        async function switchDevice(serial) {
+            showToast(`Connecting to ${serial}...`);
+            try {
+                const res = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({serial: serial})
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(`Connected to ${data.serial}`);
+                    closeDeviceModal();
+                    await fetchStatus();
+                } else {
+                    showToast(`Error: ${data.message}`);
+                }
+            } catch (e) {
+                showToast(`Request failed: ${e.message}`);
+            }
+        }
+
+        btnManualConnect.addEventListener('click', async () => {
+            const val = manualIpInput.value.trim();
+            if (!val) {
+                showToast('Please enter an IP:Port target');
+                return;
+            }
+            await switchDevice(val);
+        });
+
+        manualIpInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') btnManualConnect.click();
+        });
+
+        btnRefreshDevices.addEventListener('click', refreshDeviceList);
+
+        btnAutoDetect.addEventListener('click', async () => {
+            showToast('Auto-detecting device...');
+            try {
+                const res = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({auto: true})
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(`Connected to ${data.serial}`);
+                    closeDeviceModal();
+                    await fetchStatus();
+                } else {
+                    showToast(`Auto-detect failed: ${data.message}`);
+                }
+            } catch (e) {
+                showToast(`Request failed: ${e.message}`);
+            }
+        });
+
+        btnDisconnectDevice.addEventListener('click', async () => {
+            showToast('Disconnecting...');
+            try {
+                await fetch('/api/disconnect', {method: 'POST'});
+                showToast('Disconnected');
+                closeDeviceModal();
+                await fetchStatus();
+            } catch (e) {
+                showToast(`Failed: ${e.message}`);
+            }
+        });
+
+        // Initialize status polling & stream
+        fetchStatus();
+        setInterval(fetchStatus, 3000);
         connectWebSocket();
 
         // Tap to focus on canvas
@@ -435,11 +879,15 @@
         document.getElementById('btn-switch').addEventListener('click', () => {
             showToast('Switching camera...');
             fetch('/api/switch_camera', {method: 'POST'})
-                .then(() => showToast('Camera switched'))
+                .then(r => r.json())
+                .then(d => {
+                    if (d.ok) showToast('Camera switched');
+                    else showToast(d.error || 'Switch failed');
+                })
                 .catch(() => showToast('Switch failed'));
         });
 
-        // Instant snapshot (no interruption to camera preview)
+        // Instant snapshot
         document.getElementById('btn-snapshot').addEventListener('click', () => {
             canvas.toBlob((blob) => {
                 if (!blob) return;
@@ -457,7 +905,11 @@
         document.getElementById('btn-wake').addEventListener('click', () => {
             showToast('Activating camera interface...');
             fetch('/api/wake', {method: 'POST'})
-                .then(() => showToast('Camera activated'));
+                .then(r => r.json())
+                .then(d => {
+                    if (d.ok) showToast('Camera activated');
+                    else showToast(d.error || 'Activation failed');
+                });
         });
 
         // Rotate video

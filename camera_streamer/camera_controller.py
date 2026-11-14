@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("camera_controller")
 
 class DeviceCameraController:
-    def __init__(self, serial="172.17.131.136:38163"):
+    def __init__(self, serial=None):
         self.serial = serial
         # Viewfinder bounds: [0, 216] to [1080, 1656] (width: 1080, height: 1440)
         self.vf_left = 0
@@ -23,7 +23,19 @@ class DeviceCameraController:
         self._watchdog_running = False
         self._watchdog_thread = None
 
+    def update_serial(self, new_serial):
+        """Update active serial and re-verify camera state"""
+        self.serial = new_serial
+        if self.serial:
+            logger.info("DeviceCameraController target updated to: %s", self.serial)
+            self.ensure_camera_active()
+        else:
+            logger.info("DeviceCameraController target cleared.")
+
     def _adb(self, *args, timeout=8):
+        if not self.serial:
+            logger.warning("No device serial set for ADB command")
+            return ""
         cmd = ["adb", "-s", self.serial] + list(args)
         try:
             res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
@@ -34,6 +46,8 @@ class DeviceCameraController:
 
     def ensure_camera_active(self):
         """Wake up device, dismiss keyguard, keep awake, and ensure camera activity is in foreground"""
+        if not self.serial:
+            return False
         logger.info("Ensuring camera is active on device %s...", self.serial)
         self._adb("shell", "svc power stayon true; input keyevent 224; am start -a android.media.action.STILL_IMAGE_CAMERA")
         return True
@@ -71,6 +85,8 @@ class DeviceCameraController:
     def _watchdog_loop(self):
         while self._watchdog_running:
             time.sleep(6)
+            if not self.serial:
+                continue
             try:
                 focus = self._adb("shell", "dumpsys window | grep mCurrentFocus", timeout=5)
                 if focus and "com.oppo.camera" not in focus:
