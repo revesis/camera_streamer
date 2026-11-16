@@ -12,3 +12,11 @@ __pycache__/
 .DS_Store
 .venv/
 venv/
+
+# Android
+.gradle/
+build/
+**/build/
+local.properties
+*.apk
+*.aab

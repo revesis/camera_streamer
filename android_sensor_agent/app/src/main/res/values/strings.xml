@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Sensor Agent</string>
+    <string name="tile_label">Sensor Stream</string>
+    <string name="status_stopped">服务已停止</string>
+    <string name="status_running">后台推流中 (点击停止)</string>
+    <string name="btn_start">一键启动并托管后台</string>
+    <string name="btn_stop">停止推流服务</string>
+    <string name="host_ip_hint">主机 IP (例如 192.168.1.100)</string>
+    <string name="udp_port_hint">UDP 端口 (默认 9999)</string>
+    <string name="module_imu">IMU 惯性测量 (加速度 + 陀螺仪)</string>
+    <string name="module_orientation">四元数姿态 / 旋转矢量</string>
+    <string name="module_mag">地磁传感器 (磁力计)</string>
+    <string name="module_camera">离屏摄像头画面 (H.264/JPEG)</string>
+    <string name="rate_title">采样频率:</string>
+    <string name="rate_fastest">Fastest (~200Hz)</string>
+    <string name="rate_100hz">100 Hz</string>
+    <string name="rate_50hz">50 Hz</string>
+    <string name="minimize_tip">💡 提示：服务启动后可随时锁屏/熄屏，后台传感器将持续以设定速率推流。</string>
+</resources>

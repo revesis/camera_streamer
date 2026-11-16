@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package sensor;
+
+option java_package = "com.antigravity.sensoragent.proto";
+option java_outer_classname = "SensorProto";
+
+// 顶层数据包
+message SensorPacket {
+  uint64 sequence_number = 1;     // 包序列号 (用于检测 UDP 丢包)
+  int64 timestamp_ns = 2;         // 纳秒级时间戳 (系统或硬件时钟)
+  string device_id = 3;           // 设备标识 (如型号或设备ID)
+
+  // 模块化可配置负载 (按需填充，未开启则为空)
+  ImuData imu = 4;
+  OrientationData orientation = 5;
+  MagnetometerData mag = 6;
+  EnvironmentData env = 7;
+  CameraFrame camera_frame = 8;
+  DeviceStatus device_status = 9;  // 设备状态 (电量、充电、当前相机方向)
+}
+
+message DeviceStatus {
+  int32 battery_level = 1;         // 电池电量百分比 (0-100)
+  bool is_charging = 2;            // 是否处于充电状态
+  float battery_temp = 3;          // 电池温度 (°C)
+  bool is_front_camera = 4;        // 当前是否为前置摄像头
+}
+
+message ControlPacket {
+  enum Command {
+    SWITCH_CAMERA = 0;
+    SET_SAMPLING_RATE = 1;
+  }
+  Command command = 1;
+  int32 param = 2;
+}
+
+message Vector3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message Quaternion {
+  float w = 1;
+  float x = 2;
+  float y = 3;
+  float z = 4;
+  float accuracy = 5;            // 估算精度
+}
+
+message ImuData {
+  Vector3 accel = 1;              // 加速度 (m/s^2)
+  Vector3 gyro = 2;               // 角速度 (rad/s)
+  Vector3 linear_accel = 3;       // 线性加速度 (扣除重力)
+}
+
+message OrientationData {
+  Quaternion rotation_vector = 1; // 旋转矢量 (四元数)
+  Vector3 euler_angles = 2;       // 欧拉角 (Roll, Pitch, Yaw)
+}
+
+message MagnetometerData {
+  Vector3 magnetic_field = 1;     // 微特斯拉 (uT)
+}
+
+message EnvironmentData {
+  float pressure = 1;             // 气压 (hPa)
+  float light = 2;                // 光照强度 (lux)
+  float temperature = 3;          // 温度 (°C)
+}
+
+message CameraFrame {
+  int32 width = 1;
+  int32 height = 2;
+  enum Format {
+    JPEG = 0;
+    H264_NALU = 1;
+  }
+  Format format = 3;
+  bytes payload = 4;              // 分片数据负载
+  int32 chunk_index = 5;          // 当前分片编号 (0 .. total_chunks - 1)
+  int32 total_chunks = 6;         // 总分片数 (若为 1 则表示未分片)
+  uint32 frame_id = 7;            // 帧唯一序号
+}

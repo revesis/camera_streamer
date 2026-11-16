@@ -52,6 +52,16 @@ class DeviceCameraController:
         self._adb("shell", "svc power stayon true; input keyevent 224; am start -a android.media.action.STILL_IMAGE_CAMERA")
         return True
 
+    def wake_screen(self):
+        """Wake up device physical display"""
+        logger.info("Waking device display...")
+        self._adb("shell", "input keyevent 224")
+
+    def sleep_screen(self):
+        """Turn off device physical display"""
+        logger.info("Turning off device display...")
+        self._adb("shell", "input keyevent 223")
+
     def switch_camera(self):
         """Switch between rear and front cameras"""
         logger.info("Switching camera...")

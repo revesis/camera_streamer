@@ -484,6 +484,153 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+
+        .btn-text-short {
+            display: none;
+        }
+        .btn-text-full {
+            display: inline;
+        }
+
+        /* Responsive Layout for compact screens / 500x200 layout */
+        @media (max-width: 560px), (max-height: 280px) {
+            html, body {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                overflow: hidden !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            header {
+                position: absolute !important;
+                top: 4px !important;
+                left: 6px !important;
+                right: 6px !important;
+                width: calc(100% - 12px) !important;
+                max-width: none !important;
+                height: 26px !important;
+                padding: 2px 8px !important;
+                margin: 0 !important;
+                z-index: 40 !important;
+                background: rgba(11, 15, 25, 0.7) !important;
+                border-radius: 6px !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                backdrop-filter: blur(8px) !important;
+            }
+
+            .title-box h1 {
+                display: none !important;
+            }
+
+            .device-pill-btn {
+                padding: 2px 6px !important;
+                font-size: 0.68rem !important;
+                gap: 4px !important;
+            }
+
+            .status-badge {
+                padding: 2px 6px !important;
+                font-size: 0.68rem !important;
+                gap: 4px !important;
+            }
+
+            #conn-state {
+                display: none !important;
+            }
+
+            main {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0 !important;
+                position: relative !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .player-wrapper {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                aspect-ratio: auto !important;
+            }
+
+            .video-container {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            canvas {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+            }
+
+            .latency-indicator {
+                top: 34px !important;
+                left: 6px !important;
+                padding: 1px 5px !important;
+                font-size: 0.6rem !important;
+                gap: 6px !important;
+            }
+
+            .controls-card {
+                position: absolute !important;
+                bottom: 4px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: auto !important;
+                max-width: calc(100% - 12px) !important;
+                padding: 3px 6px !important;
+                margin: 0 !important;
+                border-radius: 8px !important;
+                background: rgba(15, 23, 42, 0.8) !important;
+                backdrop-filter: blur(10px) !important;
+                z-index: 40 !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+                gap: 0 !important;
+            }
+
+            .controls-card > div:last-child {
+                display: none !important;
+            }
+
+            .btn-group {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                gap: 5px !important;
+                justify-content: center !important;
+            }
+
+            .btn-group button {
+                padding: 2px 7px !important;
+                font-size: 0.7rem !important;
+                height: 26px !important;
+                border-radius: 6px !important;
+                white-space: nowrap !important;
+            }
+
+            .btn-text-full {
+                display: none !important;
+            }
+
+            .btn-text-short {
+                display: inline !important;
+            }
+
+            .info-bar {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -497,6 +644,14 @@
             </button>
         </div>
         <div class="status-box">
+            <div class="status-badge" id="battery-badge" title="Phone Battery Status" style="display: none; border-color: rgba(59, 130, 246, 0.4);">
+                <span id="battery-icon">🔋</span>
+                <span id="battery-text">--%</span>
+            </div>
+            <div class="status-badge" id="sensor-badge" title="Android Protobuf-over-UDP Sensor Feed" style="display: none; border-color: rgba(0, 230, 118, 0.3);">
+                <div class="pulse-dot" id="sensor-dot" style="background:#00E676; box-shadow:0 0 6px #00E676;"></div>
+                <span id="sensor-state">Sensor: 0 Hz</span>
+            </div>
             <div class="status-badge">
                 <div class="pulse-dot" id="live-dot"></div>
                 <span id="conn-state">WebSocket Direct</span>
@@ -526,20 +681,30 @@
 
         <div class="controls-card">
             <div class="btn-group">
-                <button class="primary" id="btn-switch">
-                    🔄 Switch Camera
+                <button class="primary" id="btn-switch" title="Switch between Front and Rear Camera">
+                    <span class="btn-text-full">🔄 Switch Camera</span>
+                    <span class="btn-text-short">🔄 切换</span>
                 </button>
-                <button id="btn-snapshot">
-                    📸 Capture Snapshot
+                <button id="btn-screen-power" title="Turn physical screen panel off (pure black) or on">
+                    <span id="screen-power-icon">🌙</span>
+                    <span class="btn-text-full" id="screen-power-text">Screen Off</span>
+                    <span class="btn-text-short">熄屏</span>
                 </button>
-                <button id="btn-wake">
-                    ⚡ Wake / Re-open Camera
+                <button id="btn-snapshot" title="Capture Snapshot">
+                    <span class="btn-text-full">📸 Capture Snapshot</span>
+                    <span class="btn-text-short">📸 截图</span>
                 </button>
-                <button id="btn-rotate">
-                    📐 Rotate
+                <button id="btn-wake" title="Wake or re-open camera session">
+                    <span class="btn-text-full">⚡ Wake Camera</span>
+                    <span class="btn-text-short">⚡ 唤醒</span>
                 </button>
-                <button id="btn-fullscreen">
-                    ⛶ Fullscreen
+                <button id="btn-rotate" title="Rotate video stream 90 degrees">
+                    <span class="btn-text-full">📐 Rotate</span>
+                    <span class="btn-text-short">📐 旋转</span>
+                </button>
+                <button id="btn-fullscreen" title="Toggle Fullscreen">
+                    <span class="btn-text-full">⛶ Fullscreen</span>
+                    <span class="btn-text-short">⛶ 全屏</span>
                 </button>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-sub);">
@@ -638,10 +803,51 @@
                     deviceName.textContent = data.serial;
                     deviceDot.className = "device-dot online";
                     standbyOverlay.style.display = "none";
+                } else if (data.sensor_active || data.has_frame) {
+                    deviceName.textContent = (data.sensor_device || "Realme") + " (Sensor Agent)";
+                    deviceDot.className = "device-dot online";
+                    standbyOverlay.style.display = "none";
                 } else {
                     deviceName.textContent = "No Device Bound";
                     deviceDot.className = "device-dot offline";
                     standbyOverlay.style.display = "flex";
+                }
+
+                // Update phone battery and camera facing status
+                const batteryBadge = document.getElementById('battery-badge');
+                const batteryIcon = document.getElementById('battery-icon');
+                const batteryText = document.getElementById('battery-text');
+                if (batteryBadge && data.battery_level !== undefined && data.battery_level !== null && data.battery_level >= 0) {
+                    batteryBadge.style.display = 'inline-flex';
+                    const isCharging = data.is_charging;
+                    batteryIcon.textContent = isCharging ? "⚡" : "🔋";
+                    const tempStr = data.battery_temp ? ` (${data.battery_temp}°C)` : "";
+                    batteryText.textContent = `${data.battery_level}%${tempStr}`;
+                    batteryBadge.title = `Phone Battery: ${data.battery_level}%, ${isCharging ? 'Charging' : 'Discharging'}, Temp: ${data.battery_temp || '--'}°C`;
+                }
+
+                const btnSwitch = document.getElementById('btn-switch');
+                if (btnSwitch && data.is_front_camera !== undefined && data.is_front_camera !== null) {
+                    btnSwitch.title = `Current Camera: ${data.is_front_camera ? 'Front' : 'Rear'}. Click to switch.`;
+                }
+
+                if (data.screen_off !== undefined) {
+                    const iconEl = document.getElementById('screen-power-icon');
+                    const textEl = document.getElementById('screen-power-text');
+                    const btnEl = document.getElementById('btn-screen-power');
+                    if (iconEl && textEl && btnEl) {
+                        if (data.screen_off) {
+                            iconEl.textContent = "🌙";
+                            textEl.textContent = "Screen Off (Dark)";
+                            btnEl.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                            btnEl.style.background = "rgba(16, 185, 129, 0.1)";
+                        } else {
+                            iconEl.textContent = "☀️";
+                            textEl.textContent = "Screen On (Lit)";
+                            btnEl.style.borderColor = "var(--card-border)";
+                            btnEl.style.background = "rgba(255, 255, 255, 0.07)";
+                        }
+                    }
                 }
             } catch (e) {
                 deviceName.textContent = "Server Offline";
@@ -694,6 +900,7 @@
                 }
                 ctx.drawImage(bmp, 0, 0);
                 bmp.close();
+                standbyOverlay.style.display = "none";
 
                 frameCount++;
                 const now = performance.now();
@@ -875,6 +1082,66 @@
               .catch(e => console.error(e));
         });
 
+        // Connect sensor telemetry WebSocket
+        function connectSensorWs() {
+            const loc = window.location;
+            const wsUri = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + '/ws/sensor';
+            const sensorWs = new WebSocket(wsUri);
+            const sensorBadge = document.getElementById('sensor-badge');
+            const sensorState = document.getElementById('sensor-state');
+
+            let lastCount = 0;
+            let currentHz = 0;
+            setInterval(() => {
+                if (currentHz > 0) {
+                    sensorBadge.style.display = 'inline-flex';
+                    sensorState.textContent = `Sensor: ${currentHz.toFixed(0)} Hz`;
+                    currentHz = 0;
+                } else {
+                    // Check via API fallback if idle
+                    fetch('/api/sensor/status')
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.ok && d.active) {
+                                sensorBadge.style.display = 'inline-flex';
+                                sensorState.textContent = `Sensor: ${d.rate_hz} Hz`;
+                            } else {
+                                sensorBadge.style.display = 'none';
+                            }
+                        })
+                        .catch(() => {});
+                }
+            }, 1500);
+
+            sensorWs.onmessage = (evt) => {
+                try {
+                    const data = JSON.parse(evt.data);
+                    currentHz++;
+                    if (data.orientation && data.orientation.euler) {
+                        const roll = data.orientation.euler.roll.toFixed(1);
+                        const pitch = data.orientation.euler.pitch.toFixed(1);
+                        sensorBadge.title = `Device: ${data.device_id || 'Android'}\nRoll: ${roll}° Pitch: ${pitch}°`;
+                    }
+                    if (data.device_status) {
+                        const batteryBadge = document.getElementById('battery-badge');
+                        const batteryIcon = document.getElementById('battery-icon');
+                        const batteryText = document.getElementById('battery-text');
+                        if (batteryBadge && data.device_status.battery_level !== undefined && data.device_status.battery_level >= 0) {
+                            batteryBadge.style.display = 'inline-flex';
+                            batteryIcon.textContent = data.device_status.is_charging ? "⚡" : "🔋";
+                            const tempStr = data.device_status.battery_temp ? ` (${data.device_status.battery_temp}°C)` : "";
+                            batteryText.textContent = `${data.device_status.battery_level}%${tempStr}`;
+                        }
+                    }
+                } catch(e) {}
+            };
+
+            sensorWs.onclose = () => {
+                setTimeout(connectSensorWs, 3000);
+            };
+        }
+        connectSensorWs();
+
         // Switch camera
         document.getElementById('btn-switch').addEventListener('click', () => {
             showToast('Switching camera...');
@@ -885,6 +1152,27 @@
                     else showToast(d.error || 'Switch failed');
                 })
                 .catch(() => showToast('Switch failed'));
+        });
+
+        // Screen power toggle (Physical screen off / on)
+        document.getElementById('btn-screen-power').addEventListener('click', async () => {
+            showToast('Toggling screen power...');
+            try {
+                const res = await fetch('/api/screen_power', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: 'toggle'})
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || (data.screen_off ? 'Physical screen turned off' : 'Physical screen turned on'));
+                    await fetchStatus();
+                } else {
+                    showToast(data.error || 'Failed to toggle screen');
+                }
+            } catch (e) {
+                showToast(`Request failed: ${e.message}`);
+            }
         });
 
         // Instant snapshot

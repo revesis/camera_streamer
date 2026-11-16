@@ -107,6 +107,21 @@ class TestServerEndpoints(AioHTTPTestCase):
                 self.assertIsNone(status_data2["serial"])
                 self.assertFalse(status_data2["connected"])
 
+    @unittest_run_loop
+    async def test_screen_power_endpoint(self):
+        # Test toggling screen power
+        resp = await self.client.post('/api/screen_power', json={"action": "off"})
+        self.assertEqual(resp.status, 200)
+        data = await resp.json()
+        self.assertTrue(data["ok"])
+        self.assertTrue(data["screen_off"])
+
+        resp2 = await self.client.post('/api/screen_power', json={"action": "on"})
+        self.assertEqual(resp2.status, 200)
+        data2 = await resp2.json()
+        self.assertTrue(data2["ok"])
+        self.assertFalse(data2["screen_off"])
+
 
 if __name__ == "__main__":
     unittest.main()

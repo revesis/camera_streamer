@@ -7,11 +7,12 @@ import logging
 logger = logging.getLogger("stream_service")
 
 class CameraStreamManager:
-    def __init__(self, serial=None, v4l2_device="/dev/video0", max_fps=30, max_size=720):
+    def __init__(self, serial=None, v4l2_device="/dev/video0", max_fps=30, max_size=720, turn_screen_off=True):
         self.serial = serial
         self.v4l2_device = v4l2_device
         self.max_fps = max_fps
         self.max_size = max_size
+        self.turn_screen_off = turn_screen_off
 
         self.running = False
         self.scrcpy_proc = None
@@ -22,6 +23,14 @@ class CameraStreamManager:
         self.frame_condition = threading.Condition()
         self.frame_id = 0
         self.fps = 0.0
+
+    def set_screen_off(self, enabled: bool):
+        """Update screen-off preference and restart pipeline to apply display power mode."""
+        if self.turn_screen_off == enabled:
+            return
+        self.turn_screen_off = enabled
+        logger.info("Screen-off mode changed to: %s. Restarting pipeline...", enabled)
+        self._terminate_subprocesses()
 
     def update_serial(self, new_serial):
         """Update ADB target serial and restart pipeline if active"""
@@ -76,6 +85,7 @@ class CameraStreamManager:
 
                 scrcpy_cmd = [
                     "scrcpy", "-s", self.serial,
+                    "--stay-awake",
                     "--crop=1080:1440:0:216",
                     f"--max-size={self.max_size}",
                     f"--max-fps={self.max_fps}",
@@ -84,6 +94,8 @@ class CameraStreamManager:
                     "--no-audio",
                     f"--v4l2-sink={self.v4l2_device}"
                 ]
+                if self.turn_screen_off:
+                    scrcpy_cmd.append("--turn-screen-off")
                 logger.info("Starting scrcpy (V4L2 kernel sink): %s", " ".join(scrcpy_cmd))
                 self.scrcpy_proc = subprocess.Popen(
                     scrcpy_cmd,
@@ -163,3 +175,10 @@ class CameraStreamManager:
     def get_latest_frame(self):
         with self.frame_condition:
             return self.latest_frame
+
+    def push_frame(self, frame: bytes):
+        """Allows external sources (e.g. UDP sensor agent camera frames) to feed video."""
+        with self.frame_condition:
+            self.latest_frame = frame
+            self.frame_id += 1
+            self.frame_condition.notify_all()

@@ -9,6 +9,7 @@ Features native Android camera support (zero third-party app installations requi
 ## 🌟 Key Features
 
 - **Ultra-Low Latency (30~50ms)**: Direct feed via the Linux kernel `v4l2loopback` driver and WebSocket dispatch, eliminating container (MKV/MP4/FLV) buffering delays.
+- **Physical Screen-Off Keep-Alive**: Automatically turns off the phone's physical screen panel (`scrcpy --turn-screen-off --stay-awake`), preventing phone heating, saving 90% display power, and avoiding OLED burn-in while streaming at full 30 FPS. Fully compatible with Android 11.
 - **No Third-Party APK Needed**: Automatically controls the device's native camera application via ADB, bypassing vendor restrictions (such as ColorOS/MIUI install prompts and permission dialogs).
 - **Clean Sensor Viewport**: Automatically crops the 3:4 aspect ratio camera viewfinder using `scrcpy` server-side hardware encoding, removing Android status bars and UI buttons.
 - **Background Watchdog Guard**: Periodically checks the focused activity on the device. If the camera app times out or exits, it automatically relaunches in seconds.
@@ -71,15 +72,15 @@ sudo apt-get install adb scrcpy ffmpeg v4l2loopback-dkms python3-aiohttp python3
    # 2) Specify target IP:Port directly as an argument:
    ./run_camera_stream.sh 172.17.131.136:37913
 
-   # 3) Or pass flags:
-   ./run_camera_stream.sh -s 172.17.131.136:37913 -p 8080
+   # 3) Or pass flags (e.g. custom port or keep screen on):
+   ./run_camera_stream.sh -s 172.17.131.136:37913 -p 8088 --keep-screen-on
 
    # 4) Or configure via environment variables:
-   ADB_SERIAL="172.17.131.136:37913" PORT=8080 ./run_camera_stream.sh
+   ADB_SERIAL="172.17.131.136:37913" PORT=8088 ./run_camera_stream.sh
    ```
 
 4. **Open in Browser & Switch Devices on the Fly**:
-   Navigate to `http://localhost:8080`.
+   Navigate to `http://localhost:8088`.
    - Click the **Device Pill (⚙️)** in the top bar anytime to open the **ADB Device Selector**.
    - View all detected devices, switch between them with one click, or enter a new `IP:Port` dynamically without restarting the server!
 
