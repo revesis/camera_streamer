@@ -34,14 +34,18 @@ class CameraCollector(
 
         imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2).apply {
             setOnImageAvailableListener({ reader ->
-                val image = reader?.acquireLatestImage() ?: return@setOnImageAvailableListener
-                val buffer = image.planes[0].buffer
-                val bytes = ByteArray(buffer.remaining())
-                buffer.get(bytes)
-                val timestampNs = image.timestamp
-                image.close()
+                try {
+                    val image = reader?.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    val buffer = image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes)
+                    val timestampNs = image.timestamp
+                    image.close()
 
-                onFrameBytes(bytes, timestampNs)
+                    onFrameBytes(bytes, timestampNs)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error acquiring frame: ${e.message}")
+                }
             }, backgroundHandler)
         }
 
@@ -51,14 +55,21 @@ class CameraCollector(
     fun switchCamera() {
         isFrontCamera = !isFrontCamera
         Log.i(TAG, "Switching camera facing to: ${if (isFrontCamera) "FRONT" else "BACK"}")
-        try {
-            captureSession?.close()
-            captureSession = null
-            cameraDevice?.close()
-            cameraDevice = null
-            openCamera()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error switching camera: ${e.message}", e)
+        val handler = backgroundHandler ?: return
+        handler.post {
+            try {
+                try {
+                    captureSession?.stopRepeating()
+                    captureSession?.abortCaptures()
+                } catch (ignored: Exception) {}
+                captureSession?.close()
+                captureSession = null
+                cameraDevice?.close()
+                cameraDevice = null
+                openCamera()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error switching camera: ${e.message}", e)
+            }
         }
     }
 
