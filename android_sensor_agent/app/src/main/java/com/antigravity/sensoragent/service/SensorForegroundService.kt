@@ -23,6 +23,7 @@ import com.antigravity.sensoragent.collector.ImuCollector
 import com.antigravity.sensoragent.collector.MagCollector
 import com.antigravity.sensoragent.collector.OrientationCollector
 import com.antigravity.sensoragent.config.AgentConfig
+import com.antigravity.sensoragent.net.HttpControlServer
 import com.antigravity.sensoragent.net.UdpDispatcher
 import com.antigravity.sensoragent.proto.SensorProto.CameraFrame
 import com.antigravity.sensoragent.proto.SensorProto.ControlPacket
@@ -45,6 +46,7 @@ class SensorForegroundService : Service() {
     private var magCollector: MagCollector? = null
     private var cameraCollector: CameraCollector? = null
     private var batteryCollector: BatteryCollector? = null
+    private var httpControlServer: HttpControlServer? = null
     private val frameIdCounter = AtomicInteger(0)
 
     private lateinit var config: AgentConfig
@@ -214,6 +216,20 @@ class SensorForegroundService : Service() {
         batteryHandler.removeCallbacks(batteryRunnable)
         batteryHandler.post(batteryRunnable)
 
+        // Start direct HTTP control server on port 8089
+        httpControlServer = HttpControlServer(
+            port = 8089,
+            onSwitchCamera = {
+                batteryHandler.post { handleSwitchCamera() }
+                !config.isFrontCamera
+            },
+            onGetStatus = {
+                val isFront = cameraCollector?.isFrontCamera ?: config.isFrontCamera
+                val status = batteryCollector?.getDeviceStatus(isFront)
+                "{\"ok\":true,\"battery_level\":${status?.batteryLevel ?: -1},\"is_charging\":${status?.isCharging ?: false},\"battery_temp\":${status?.batteryTemp ?: 0f},\"is_front_camera\":$isFront,\"device_id\":\"${Build.MANUFACTURER} ${Build.MODEL}\"}"
+            }
+        ).apply { start() }
+
         config.isServiceRunning = true
     }
 
@@ -232,6 +248,9 @@ class SensorForegroundService : Service() {
 
         cameraCollector?.stop()
         cameraCollector = null
+
+        httpControlServer?.stop()
+        httpControlServer = null
 
         udpDispatcher?.stop()
         udpDispatcher = null

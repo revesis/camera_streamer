@@ -25,6 +25,7 @@ message DeviceStatus {
   bool is_charging = 2;            // 是否处于充电状态
   float battery_temp = 3;          // 电池温度 (°C)
   bool is_front_camera = 4;        // 当前是否为前置摄像头
+  string ip_address = 5;           // 手机本机 IP 地址 (用于直连控制)
 }
 
 message ControlPacket {

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13sensor_packet.proto\x12\x06sensor\"\xc1\x02\n\x0cSensorPacket\x12\x17\n\x0fsequence_number\x18\x01 \x01(\x04\x12\x14\n\x0ctimestamp_ns\x18\x02 \x01(\x03\x12\x11\n\tdevice_id\x18\x03 \x01(\t\x12\x1c\n\x03imu\x18\x04 \x01(\x0b\x32\x0f.sensor.ImuData\x12,\n\x0borientation\x18\x05 \x01(\x0b\x32\x17.sensor.OrientationData\x12%\n\x03mag\x18\x06 \x01(\x0b\x32\x18.sensor.MagnetometerData\x12$\n\x03\x65nv\x18\x07 \x01(\x0b\x32\x17.sensor.EnvironmentData\x12)\n\x0c\x63\x61mera_frame\x18\x08 \x01(\x0b\x32\x13.sensor.CameraFrame\x12+\n\rdevice_status\x18\t \x01(\x0b\x32\x14.sensor.DeviceStatus\"i\n\x0c\x44\x65viceStatus\x12\x15\n\rbattery_level\x18\x01 \x01(\x05\x12\x13\n\x0bis_charging\x18\x02 \x01(\x08\x12\x14\n\x0c\x62\x61ttery_temp\x18\x03 \x01(\x02\x12\x17\n\x0fis_front_camera\x18\x04 \x01(\x08\"\x83\x01\n\rControlPacket\x12.\n\x07\x63ommand\x18\x01 \x01(\x0e\x32\x1d.sensor.ControlPacket.Command\x12\r\n\x05param\x18\x02 \x01(\x05\"3\n\x07\x43ommand\x12\x11\n\rSWITCH_CAMERA\x10\x00\x12\x15\n\x11SET_SAMPLING_RATE\x10\x01\"*\n\x07Vector3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"J\n\nQuaternion\x12\t\n\x01w\x18\x01 \x01(\x02\x12\t\n\x01x\x18\x02 \x01(\x02\x12\t\n\x01y\x18\x03 \x01(\x02\x12\t\n\x01z\x18\x04 \x01(\x02\x12\x10\n\x08\x61\x63\x63uracy\x18\x05 \x01(\x02\"o\n\x07ImuData\x12\x1e\n\x05\x61\x63\x63\x65l\x18\x01 \x01(\x0b\x32\x0f.sensor.Vector3\x12\x1d\n\x04gyro\x18\x02 \x01(\x0b\x32\x0f.sensor.Vector3\x12%\n\x0clinear_accel\x18\x03 \x01(\x0b\x32\x0f.sensor.Vector3\"e\n\x0fOrientationData\x12+\n\x0frotation_vector\x18\x01 \x01(\x0b\x32\x12.sensor.Quaternion\x12%\n\x0c\x65uler_angles\x18\x02 \x01(\x0b\x32\x0f.sensor.Vector3\";\n\x10MagnetometerData\x12\'\n\x0emagnetic_field\x18\x01 \x01(\x0b\x32\x0f.sensor.Vector3\"G\n\x0f\x45nvironmentData\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\r\n\x05light\x18\x02 \x01(\x02\x12\x13\n\x0btemperature\x18\x03 \x01(\x02\"\xc9\x01\n\x0b\x43\x61meraFrame\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\x12*\n\x06\x66ormat\x18\x03 \x01(\x0e\x32\x1a.sensor.CameraFrame.Format\x12\x0f\n\x07payload\x18\x04 \x01(\x0c\x12\x13\n\x0b\x63hunk_index\x18\x05 \x01(\x05\x12\x14\n\x0ctotal_chunks\x18\x06 \x01(\x05\x12\x10\n\x08\x66rame_id\x18\x07 \x01(\r\"!\n\x06\x46ormat\x12\x08\n\x04JPEG\x10\x00\x12\r\n\tH264_NALU\x10\x01\x42\x30\n!com.antigravity.sensoragent.protoB\x0bSensorProtob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13sensor_packet.proto\x12\x06sensor\"\xc1\x02\n\x0cSensorPacket\x12\x17\n\x0fsequence_number\x18\x01 \x01(\x04\x12\x14\n\x0ctimestamp_ns\x18\x02 \x01(\x03\x12\x11\n\tdevice_id\x18\x03 \x01(\t\x12\x1c\n\x03imu\x18\x04 \x01(\x0b\x32\x0f.sensor.ImuData\x12,\n\x0borientation\x18\x05 \x01(\x0b\x32\x17.sensor.OrientationData\x12%\n\x03mag\x18\x06 \x01(\x0b\x32\x18.sensor.MagnetometerData\x12$\n\x03\x65nv\x18\x07 \x01(\x0b\x32\x17.sensor.EnvironmentData\x12)\n\x0c\x63\x61mera_frame\x18\x08 \x01(\x0b\x32\x13.sensor.CameraFrame\x12+\n\rdevice_status\x18\t \x01(\x0b\x32\x14.sensor.DeviceStatus\"}\n\x0c\x44\x65viceStatus\x12\x15\n\rbattery_level\x18\x01 \x01(\x05\x12\x13\n\x0bis_charging\x18\x02 \x01(\x08\x12\x14\n\x0c\x62\x61ttery_temp\x18\x03 \x01(\x02\x12\x17\n\x0fis_front_camera\x18\x04 \x01(\x08\x12\x12\n\nip_address\x18\x05 \x01(\t\"\x83\x01\n\rControlPacket\x12.\n\x07\x63ommand\x18\x01 \x01(\x0e\x32\x1d.sensor.ControlPacket.Command\x12\r\n\x05param\x18\x02 \x01(\x05\"3\n\x07\x43ommand\x12\x11\n\rSWITCH_CAMERA\x10\x00\x12\x15\n\x11SET_SAMPLING_RATE\x10\x01\"*\n\x07Vector3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"J\n\nQuaternion\x12\t\n\x01w\x18\x01 \x01(\x02\x12\t\n\x01x\x18\x02 \x01(\x02\x12\t\n\x01y\x18\x03 \x01(\x02\x12\t\n\x01z\x18\x04 \x01(\x02\x12\x10\n\x08\x61\x63\x63uracy\x18\x05 \x01(\x02\"o\n\x07ImuData\x12\x1e\n\x05\x61\x63\x63\x65l\x18\x01 \x01(\x0b\x32\x0f.sensor.Vector3\x12\x1d\n\x04gyro\x18\x02 \x01(\x0b\x32\x0f.sensor.Vector3\x12%\n\x0clinear_accel\x18\x03 \x01(\x0b\x32\x0f.sensor.Vector3\"e\n\x0fOrientationData\x12+\n\x0frotation_vector\x18\x01 \x01(\x0b\x32\x12.sensor.Quaternion\x12%\n\x0c\x65uler_angles\x18\x02 \x01(\x0b\x32\x0f.sensor.Vector3\";\n\x10MagnetometerData\x12\'\n\x0emagnetic_field\x18\x01 \x01(\x0b\x32\x0f.sensor.Vector3\"G\n\x0f\x45nvironmentData\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\r\n\x05light\x18\x02 \x01(\x02\x12\x13\n\x0btemperature\x18\x03 \x01(\x02\"\xc9\x01\n\x0b\x43\x61meraFrame\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\x12*\n\x06\x66ormat\x18\x03 \x01(\x0e\x32\x1a.sensor.CameraFrame.Format\x12\x0f\n\x07payload\x18\x04 \x01(\x0c\x12\x13\n\x0b\x63hunk_index\x18\x05 \x01(\x05\x12\x14\n\x0ctotal_chunks\x18\x06 \x01(\x05\x12\x10\n\x08\x66rame_id\x18\x07 \x01(\r\"!\n\x06\x46ormat\x12\x08\n\x04JPEG\x10\x00\x12\r\n\tH264_NALU\x10\x01\x42\x30\n!com.antigravity.sensoragent.protoB\x0bSensorProtob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,25 +35,25 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SENSORPACKET']._serialized_start=32
   _globals['_SENSORPACKET']._serialized_end=353
   _globals['_DEVICESTATUS']._serialized_start=355
-  _globals['_DEVICESTATUS']._serialized_end=460
-  _globals['_CONTROLPACKET']._serialized_start=463
-  _globals['_CONTROLPACKET']._serialized_end=594
-  _globals['_CONTROLPACKET_COMMAND']._serialized_start=543
-  _globals['_CONTROLPACKET_COMMAND']._serialized_end=594
-  _globals['_VECTOR3']._serialized_start=596
-  _globals['_VECTOR3']._serialized_end=638
-  _globals['_QUATERNION']._serialized_start=640
-  _globals['_QUATERNION']._serialized_end=714
-  _globals['_IMUDATA']._serialized_start=716
-  _globals['_IMUDATA']._serialized_end=827
-  _globals['_ORIENTATIONDATA']._serialized_start=829
-  _globals['_ORIENTATIONDATA']._serialized_end=930
-  _globals['_MAGNETOMETERDATA']._serialized_start=932
-  _globals['_MAGNETOMETERDATA']._serialized_end=991
-  _globals['_ENVIRONMENTDATA']._serialized_start=993
-  _globals['_ENVIRONMENTDATA']._serialized_end=1064
-  _globals['_CAMERAFRAME']._serialized_start=1067
-  _globals['_CAMERAFRAME']._serialized_end=1268
-  _globals['_CAMERAFRAME_FORMAT']._serialized_start=1235
-  _globals['_CAMERAFRAME_FORMAT']._serialized_end=1268
+  _globals['_DEVICESTATUS']._serialized_end=480
+  _globals['_CONTROLPACKET']._serialized_start=483
+  _globals['_CONTROLPACKET']._serialized_end=614
+  _globals['_CONTROLPACKET_COMMAND']._serialized_start=563
+  _globals['_CONTROLPACKET_COMMAND']._serialized_end=614
+  _globals['_VECTOR3']._serialized_start=616
+  _globals['_VECTOR3']._serialized_end=658
+  _globals['_QUATERNION']._serialized_start=660
+  _globals['_QUATERNION']._serialized_end=734
+  _globals['_IMUDATA']._serialized_start=736
+  _globals['_IMUDATA']._serialized_end=847
+  _globals['_ORIENTATIONDATA']._serialized_start=849
+  _globals['_ORIENTATIONDATA']._serialized_end=950
+  _globals['_MAGNETOMETERDATA']._serialized_start=952
+  _globals['_MAGNETOMETERDATA']._serialized_end=1011
+  _globals['_ENVIRONMENTDATA']._serialized_start=1013
+  _globals['_ENVIRONMENTDATA']._serialized_end=1084
+  _globals['_CAMERAFRAME']._serialized_start=1087
+  _globals['_CAMERAFRAME']._serialized_end=1288
+  _globals['_CAMERAFRAME_FORMAT']._serialized_start=1255
+  _globals['_CAMERAFRAME_FORMAT']._serialized_end=1288
 # @@protoc_insertion_point(module_scope)

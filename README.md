@@ -18,7 +18,8 @@ Supports **two flexible architectures**:
   - 🧭 **Orientation**: Rotation Vector Quaternions & Euler Angles (Roll / Pitch / Yaw).
   - 🧲 **Magnetometer**: 3-axis microtesla magnetic field data.
   - 🔋 **Device Status**: Live battery capacity percentage, charging status, and battery temperature (°C).
-- **Camera Hot-Switching**: Dynamic toggle between **Front** and **Rear** camera sensors on the fly, either directly in the Android app UI or remotely from the Web console.
+- **Camera Hot-Switching**: Dynamic toggle between **Front** and **Rear** camera sensors on the fly, either directly in the Android app UI or remotely from the Web console (via embedded lightweight HTTP server on port 8089, UDP ControlPacket fallback, or ADB broadcast).
+- **Embedded HTTP Remote Control**: Android service includes a non-blocking embedded HTTP server (`:8089`) providing `/status` and `/switch_camera` REST endpoints, enabling deterministic zero-latency remote control completely independent of ADB and relay NAT states.
 - **MTU-Safe UDP Chunking**: Large JPEG frames (~35KB-120KB) are sliced into 1100-byte UDP datagrams with automatic frame ID and chunk reassembly on the receiver side.
 - **Docker / Podman Zero-JDK Build**: Compile the Android APK inside an isolated container (`ghcr.io/cirruslabs/android-sdk:34`) without installing Java/JDK or Android SDK on the host machine.
 
@@ -188,7 +189,7 @@ camera_streamer/
 | `/ws/sensor` | `WS` | Real-time JSON telemetry broadcast (IMU, Quaternions, Battery). |
 | `/api/status` | `GET` | Current device connectivity, battery status, temperature, and camera orientation. |
 | `/api/snapshot` | `GET` | Capture and download the latest uncompressed JPEG frame. |
-| `/api/switch_camera` | `POST` | Remotely switch between Front and Rear cameras via UDP / ADB. |
+| `/api/switch_camera` | `POST` | Remotely switch between Front and Rear cameras (via Direct Phone HTTP, UDP ControlPacket, or ADB). |
 | `/api/screen_power` | `POST` | Toggle physical phone screen panel on/off. |
 | `/api/devices` | `GET` | List all discovered ADB devices. |
 | `/api/connect` | `POST` | Dynamically bind to a target ADB `IP:Port`. |

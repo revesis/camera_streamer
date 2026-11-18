@@ -72,7 +72,8 @@ def on_sensor_packet(pkt, addr):
             "battery_level": ds.battery_level,
             "is_charging": ds.is_charging,
             "battery_temp": round(ds.battery_temp, 1),
-            "is_front_camera": ds.is_front_camera
+            "is_front_camera": ds.is_front_camera,
+            "ip_address": ds.ip_address
         }
     elif "device_status" in latest_sensor_data:
         data["device_status"] = latest_sensor_data["device_status"]
@@ -247,52 +248,85 @@ async def disconnect_handler(request):
 @routes.post('/api/switch_camera')
 async def switch_camera_handler(request):
     logger.info("Switch camera requested via /api/switch_camera")
+    http_switched = False
     udp_sent = False
-    if sensor_receiver.last_sender_addr:
+    adb_switched = False
+
+    # 1. Direct HTTP control to phone if phone IP is known or on subnet
+    phone_ip = latest_sensor_data.get("device_status", {}).get("ip_address")
+    if not phone_ip:
+        remote_ip = latest_sensor_data.get("remote_ip")
+        if remote_ip and not remote_ip.startswith("192.168.111.") and not remote_ip.startswith("127."):
+            phone_ip = remote_ip
+        else:
+            phone_ip = "172.17.131.136"
+
+    if phone_ip:
+        try:
+            url = f"http://{phone_ip}:8089/switch_camera"
+            logger.info(f"Sending direct HTTP switch_camera to: {url}")
+            import aiohttp
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=2.0)) as session:
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        http_switched = True
+                        res_json = await resp.json()
+                        logger.info(f"Direct HTTP switch_camera successful: {res_json}")
+                        if "is_front_camera" in res_json:
+                            if "device_status" not in latest_sensor_data:
+                                latest_sensor_data["device_status"] = {}
+                            latest_sensor_data["device_status"]["is_front_camera"] = res_json["is_front_camera"]
+        except Exception as e:
+            logger.warning(f"Direct HTTP switch_camera to {phone_ip}:8089 failed: {e}")
+
+    # 2. UDP ControlPacket (fallback if HTTP direct control not used)
+    if not http_switched and sensor_receiver.last_sender_addr:
         ctrl = sensor_packet_pb2.ControlPacket()
         ctrl.command = sensor_packet_pb2.ControlPacket.Command.SWITCH_CAMERA
         ctrl.param = 1
         udp_sent = sensor_receiver.send(ctrl.SerializeToString())
         logger.info(f"UDP ControlPacket(SWITCH_CAMERA) sent: {udp_sent} to {sensor_receiver.last_sender_addr}")
 
-    adb_switched = False
-    import subprocess
-    target_devices = []
-    if current_serial:
-        target_devices.append(current_serial)
-    else:
-        for d in get_adb_devices():
-            if d not in target_devices:
-                target_devices.append(d)
+    # 3. ADB Intent fallback (only if both HTTP and UDP failed)
+    if not http_switched and not udp_sent:
+        import subprocess
+        target_devices = []
+        if current_serial:
+            target_devices.append(current_serial)
+        else:
+            for d in get_adb_devices():
+                if d not in target_devices:
+                    target_devices.append(d)
 
-    if not target_devices:
-        try:
-            res = subprocess.run(["adb", "devices"], capture_output=True, text=True, timeout=2)
-            for line in res.stdout.strip().splitlines()[1:]:
-                parts = line.split()
-                if len(parts) >= 2 and parts[1] == "device":
-                    target_devices.append(parts[0])
-        except Exception:
-            pass
+        if not target_devices:
+            try:
+                res = subprocess.run(["adb", "devices"], capture_output=True, text=True, timeout=2)
+                for line in res.stdout.strip().splitlines()[1:]:
+                    parts = line.split()
+                    if len(parts) >= 2 and parts[1] == "device":
+                        target_devices.append(parts[0])
+            except Exception:
+                pass
 
-    for dev in target_devices:
-        try:
-            subprocess.run(
-                ["adb", "-s", dev, "shell", "am", "broadcast", "-a", "com.antigravity.sensoragent.SWITCH_CAMERA"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2
-            )
-            subprocess.run(
-                ["adb", "-s", dev, "shell", "am", "start-foreground-service", "-a", "com.antigravity.sensoragent.SWITCH_CAMERA", "com.antigravity.sensoragent/.service.SensorForegroundService"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2
-            )
-            adb_switched = True
-            logger.info(f"ADB SWITCH_CAMERA intent sent to {dev}")
-        except Exception as e:
-            logger.warning(f"ADB switch_camera on {dev} failed: {e}")
+        for dev in target_devices:
+            try:
+                subprocess.run(
+                    ["adb", "-s", dev, "shell", "am", "broadcast", "-a", "com.antigravity.sensoragent.SWITCH_CAMERA"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2
+                )
+                subprocess.run(
+                    ["adb", "-s", dev, "shell", "am", "start-foreground-service", "-a", "com.antigravity.sensoragent.SWITCH_CAMERA", "com.antigravity.sensoragent/.service.SensorForegroundService"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2
+                )
+                adb_switched = True
+                logger.info(f"ADB SWITCH_CAMERA intent sent to {dev}")
+            except Exception as e:
+                logger.warning(f"ADB switch_camera on {dev} failed: {e}")
 
     return web.json_response({
-        "ok": True,
+        "ok": http_switched or udp_sent or adb_switched,
         "action": "switch_camera",
+        "http": http_switched,
         "udp": udp_sent,
         "adb": adb_switched
     })
